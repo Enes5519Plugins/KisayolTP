@@ -1,0 +1,13 @@
+name: KisayolTP
+version: 2.0
+main: Enes5519\KTP\KisayolTP
+api: [3.0.0-ALPHA5, 3.0.0-ALPHA4, 4.0.0, 3.0.1]
+author: Enes5519
+
+commands:
+  ktp:
+    description: "KısayolTP Yerleri Listeler"
+
+permission:
+  enes5519.kisayoltp.tabelaolustur:
+    default: op
