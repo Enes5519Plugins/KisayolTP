@@ -21,7 +21,6 @@ class KisayolTP extends PluginBase{
 
     const DUNYA_SILINDI = 4;
     const YER_BULUNAMADI = 3;
-    const YER_EKLENMIS = 2;
 
     public function onEnable(){
         self::$api = $this;
@@ -29,7 +28,7 @@ class KisayolTP extends PluginBase{
         $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML, [
             "baslik" => $this->b,
             "tabela-baslik" => $this->tabelabaslik,
-            "kullan-AvailableCommandsPacket" => "true",
+            "kullan-AvailableCommandsPacket" => "false",
             "yerler" => array()
         ]);
         $this->b = $cfg->get("baslik");
@@ -90,11 +89,11 @@ class KisayolTP extends PluginBase{
                     }
                     $kaldir = $this->ktpKaldir($args[1]);
                     switch ($kaldir){
-                        case self::YER_EKLENMIS:
+                        case self::YER_BULUNAMADI:
                             $g->sendMessage($this->b."§c".$args[1]." isimli yer yok!");
                             break;
                         case true:
-                            $g->sendMessage($this->b."§c".$args[1]." isimli yer yok!");
+                            $g->sendMessage($this->b."§c".$args[1]." isimli yer kaldırıldı!");
                             break;
                     }
                     break;
@@ -141,7 +140,7 @@ class KisayolTP extends PluginBase{
     public function ktpKaldir($yer){
         $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
         $yerler = $cfg->get("yerler");
-        $deger = false;
+        $deger = self::YER_BULUNAMADI;
         if(in_array($yer, $yerler)){
             unset($yerler[array_search($yer, $yerler)]);
             $deger = true;
@@ -150,13 +149,13 @@ class KisayolTP extends PluginBase{
             $cfg->remove($yer);
             $deger = true;
         }
-        if(!$deger){
-            return self::YER_EKLENMIS;
+        if($deger == self::YER_BULUNAMADI){
+            return $deger;
         }
         $cfg->set("yerler", $yerler);
         $cfg->save();
         $this->komutGuncelle();
-        return true;
+        return $deger;
     }
 
     public function yerIsınla(Player $o, $yer){
