@@ -2,8 +2,7 @@
 
 namespace Enes5519\KTP;
 
-use pocketmine\command\Command;
-use pocketmine\command\CommandSender;
+use pocketmine\command\{Command, CommandSender};
 use pocketmine\command\PluginCommand;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
@@ -16,12 +15,17 @@ class KisayolTP extends PluginBase{
     /** @var KisayolTP */
     private static $api;
 
+    /** @var string */
     public $b = "§6KısayolTP §8» §r";
+    /** @var string */
     public $tabelabaslik = "§7[§bIşınlan§7]";
 
     const DUNYA_SILINDI = 4;
     const YER_BULUNAMADI = 3;
 
+    /**
+     * @return void
+     */
     public function onEnable(){
         self::$api = $this;
         @mkdir($this->getDataFolder());
@@ -47,7 +51,15 @@ class KisayolTP extends PluginBase{
         $this->getServer()->getPluginManager()->registerEvents(new EventListener($this), $this);
     }
 
-    public function onCommand(CommandSender $g, Command $kmt, $label, array $args){
+    /**
+     * @param CommandSender $sender
+     * @param Command $command
+     * @param string $label
+     * @param array $args
+     *
+     * @return bool
+     */
+    public function onCommand(CommandSender $g, Command $kmt, string $label, array $args) : bool{
         if(!$g instanceof Player) return;
         if($kmt->getName() == "ktp"){
             if(empty($args[0])){
@@ -121,6 +133,14 @@ class KisayolTP extends PluginBase{
         }
     }
 
+    /**
+     * @param string $yer
+     * @param Position $kordinat
+     * @param int $yaw
+     * @param int $pitch
+     *
+     * @return void
+     */
     public function ktpEkle($yer, Position $kordinat, $yaw = 0, $pitch = 0){
         $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
         $yerler = $cfg->get("yerler");
@@ -137,6 +157,11 @@ class KisayolTP extends PluginBase{
         return true;
     }
 
+    /**
+     * @param string $yer
+     *
+     * @return bool
+     */
     public function ktpKaldir($yer){
         $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
         $yerler = $cfg->get("yerler");
@@ -158,6 +183,12 @@ class KisayolTP extends PluginBase{
         return $deger;
     }
 
+    /**
+     * @param Player $o
+     * @param string $yer
+     *
+     * @return bool
+     */
     public function yerIsınla(Player $o, $yer){
         $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
         $yerler = $cfg->get("yerler");
@@ -178,10 +209,18 @@ class KisayolTP extends PluginBase{
         return true;
     }
 
+    /**
+     * @return KisayolTP
+     */
     public static function getAPI() : KisayolTP{
         return self::$api;
     }
 
+    /**
+     * @param string $yer
+     *
+     * @return bool
+     */
     public function yerVarmi($yer){
         $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
         $yerler = $cfg->get("yerler");
@@ -191,6 +230,9 @@ class KisayolTP extends PluginBase{
         return true;
     }
 
+    /**
+     * @return void
+     */
     public function komutGuncelle(){
         $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
         $cfg->reload();
