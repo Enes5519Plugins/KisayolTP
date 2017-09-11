@@ -4,6 +4,7 @@ namespace Enes5519\KTP;
 
 use pocketmine\event\block\SignChangeEvent;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerCommandPreprocessEvent;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\tile\Sign;
 use pocketmine\utils\TextFormat;

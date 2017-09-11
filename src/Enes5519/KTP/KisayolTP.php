@@ -52,14 +52,14 @@ class KisayolTP extends PluginBase{
     }
 
     /**
-     * @param CommandSender $sender
-     * @param Command $command
+     * @param CommandSender $g
+     * @param Command $kmt
      * @param string $label
      * @param array $args
      *
-     * @return bool
+     * @return bool|void
      */
-    public function onCommand(CommandSender $g, Command $kmt, string $label, array $args) : bool{
+    public function onCommand(CommandSender $g, Command $kmt, $label, array $args){
         if(!$g instanceof Player) return;
         if($kmt->getName() == "ktp"){
             if(empty($args[0])){
@@ -90,7 +90,7 @@ class KisayolTP extends PluginBase{
                         $g->sendMessage($this->b."§c/ktp ekle <yer-isim>");
                         return;
                     }
-                    if($this->ktpEkle($args[1], $g, $g->yaw, $g->pitch)) {
+                    if($this->ktpEkle($args[1], $g)) {
                         $g->sendMessage($this->b."§a".$args[1]." isimli yer eklendi!");
                     }
                     break;
@@ -135,23 +135,21 @@ class KisayolTP extends PluginBase{
 
     /**
      * @param string $yer
-     * @param Position $kordinat
-     * @param int $yaw
-     * @param int $pitch
+     * @param Player $o
      *
-     * @return void
+     * @return bool
      */
-    public function ktpEkle($yer, Position $kordinat, $yaw = 0, $pitch = 0){
+    public function ktpEkle($yer, Player $o){
         $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
         $yerler = $cfg->get("yerler");
         if(!in_array($yer, $yerler)) $yerler[] = $yer;
         $cfg->set("yerler", $yerler);
-        $cfg->setNested($yer.".X" , $kordinat->getFloorX());
-        $cfg->setNested($yer.".Y" , $kordinat->getFloorY());
-        $cfg->setNested($yer.".Z" , $kordinat->getFloorZ());
-        $cfg->setNested($yer.".Yaw" , $yaw);
-        $cfg->setNested($yer.".Pitch" , $pitch);
-        $cfg->setNested($yer.".Dunya" , $kordinat->getLevel()->getFolderName());
+        $cfg->setNested($yer.".X" , $o->getFloorX());
+        $cfg->setNested($yer.".Y" , $o->getFloorY());
+        $cfg->setNested($yer.".Z" , $o->getFloorZ());
+        $cfg->setNested($yer.".Yaw" , $o->yaw);
+        $cfg->setNested($yer.".Pitch" , $o->pitch);
+        $cfg->setNested($yer.".Dunya" , $o->getLevel()->getFolderName());
         $cfg->save();
         $this->komutGuncelle();
         return true;
@@ -189,7 +187,7 @@ class KisayolTP extends PluginBase{
      *
      * @return bool
      */
-    public function yerIsınla(Player $o, $yer){
+    public function yerIsinla(Player $o, $yer){
         $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
         $yerler = $cfg->get("yerler");
         if(!in_array($yer, $yerler) or !$cfg->exists($yer)){
