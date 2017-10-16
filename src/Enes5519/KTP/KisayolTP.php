@@ -115,7 +115,7 @@ class KisayolTP extends PluginBase{
             }
         }else{
             $komut = $kmt->getName();
-            $isinla = $this->yerIsınla($g, $komut);
+            $isinla = $this->yerIsinla($g, $komut);
             switch ($isinla){
                 case true:
                     $g->sendMessage($this->b."§a$komut yerine ışınlandınız.");
