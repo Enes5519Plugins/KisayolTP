@@ -59,195 +59,200 @@ class KisayolTP extends PluginBase{
      *
      * @return bool|void
      */
-    public function onCommand(CommandSender $g, Command $kmt, $label, array $args){
-        if(!$g instanceof Player) return;
-        if($kmt->getName() == "ktp"){
-            if(empty($args[0])){
-                $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
+    public function onCommand(CommandSender $g, Command $kmt, string $label, array $args): bool
+    {
+        if ($kmt->getName() === "ktp") {
+            if (!$g instanceof Player) {
+                $g->sendMessage("Oyun İçinde Kullanın");
+                return false;
+            }
+            if (empty($args[0])) {
+                $cfg = new Config($this->getDataFolder() . "config.yml", Config::YAML);
                 $yerler = $cfg->get("yerler");
-                if(count($yerler) > 0) {
+                if (count($yerler) > 0) {
                     $liste = "";
                     foreach ($yerler as $yer) {
                         $liste .= "\n§8§l> §r§a$yer ";
                     }
                     $g->sendMessage("§7==== §2Yer Listesi §7====$liste");
-                }else{
-                    $g->sendMessage($this->b."§cŞuan da ayarlanmış yer bulunmamaktadır!");
+                } else {
+                    $g->sendMessage($this->b . "§cŞuan da ayarlanmış yer bulunmamaktadır!");
                 }
-                if ($g->isOp()) $g->sendMessage(PHP_EOL.$this->b."§eDiğer komutlar için: /ktp yardim");
-                return;
-            }else{
-                if(!$g->isOp()){
-                    return;
+                if ($g->isOp()) $g->sendMessage(PHP_EOL . $this->b . "§eDiğer komutlar için: /ktp yardim");
+                return false;
+            } else {
+                if (!$g->isOp()) {
+                    return false;
                 }
             }
-            switch ($args[0]){
+            switch ($args[0]) {
                 case "yardim":
                     $g->sendMessage("§8=== §eKısayolTP §8===\n§8» §6/ktp ekle <yer-isim> §eYer ekler\n§8» §6/ktp kaldir <yer-isim> §eYer kaldırır");
                     break;
                 case "ekle":
-                    if(empty($args[1])){
-                        $g->sendMessage($this->b."§c/ktp ekle <yer-isim>");
-                        return;
+                    if (empty($args[1])) {
+                        $g->sendMessage($this->b . "§c/ktp ekle <yer-isim>");
+                        return false;
                     }
-                    if($this->ktpEkle($args[1], $g)) {
-                        $g->sendMessage($this->b."§a".$args[1]." isimli yer eklendi!");
+                    if ($this->ktpEkle($args[1], $g)) {
+                        $g->sendMessage($this->b . "§a" . $args[1] . " isimli yer eklendi!");
                     }
                     break;
                 case "kaldir":
-                    if(empty($args[1])){
-                        $g->sendMessage($this->b."§c/ktp kaldir <yer-isim>");
-                        return;
+                    if (empty($args[1])) {
+                        $g->sendMessage($this->b . "§c/ktp kaldir <yer-isim>");
+                        return false;
                     }
                     $kaldir = $this->ktpKaldir($args[1]);
-                    switch ($kaldir){
+                    switch ($kaldir) {
                         case self::YER_BULUNAMADI:
-                            $g->sendMessage($this->b."§c".$args[1]." isimli yer yok!");
+                            $g->sendMessage($this->b . "§c" . $args[1] . " isimli yer yok!");
                             break;
                         case true:
-                            $g->sendMessage($this->b."§c".$args[1]." isimli yer kaldırıldı!");
+                            $g->sendMessage($this->b . "§c" . $args[1] . " isimli yer kaldırıldı!");
                             break;
                     }
                     break;
                 default:
-                    $g->sendMessage($this->b."§cYanlış bir komut girildi: /ktp yardim");
+                    $g->sendMessage($this->b . "§cYanlış bir komut girildi: /ktp yardim");
                     break;
             }
-        }else{
+        } else {
             $komut = $kmt->getName();
             $isinla = $this->yerIsinla($g, $komut);
-            switch ($isinla){
+            switch ($isinla) {
                 case true:
-                    $g->sendMessage($this->b."§a$komut yerine ışınlandınız.");
+                    $g->sendMessage($this->b . "§a$komut yerine ışınlandınız.");
                     break;
                 case self::DUNYA_SILINDI:
-                    $g->sendMessage($this->b."§c$komut yerinin dünyası silinmiş.");
+                    $g->sendMessage($this->b . "§c$komut yerinin dünyası silinmiş.");
                     break;
                 case self::YER_BULUNAMADI:
-                    $g->sendMessage($this->b."§cYer silinmiş ya da kaldırılmış.");
+                    $g->sendMessage($this->b . "§cYer silinmiş ya da kaldırılmış.");
                     break;
                 default:
-                    $g->sendMessage($this->b."§cBir hata oluştu!");
+                    $g->sendMessage($this->b . "§cBir hata oluştu!");
                     break;
             }
         }
     }
 
-    /**
-     * @param string $yer
-     * @param Player $o
-     *
-     * @return bool
-     */
-    public function ktpEkle($yer, Player $o){
-        $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
-        $yerler = $cfg->get("yerler");
-        if(!in_array($yer, $yerler)) $yerler[] = $yer;
-        $cfg->set("yerler", $yerler);
-        $cfg->setNested($yer.".X" , $o->getFloorX());
-        $cfg->setNested($yer.".Y" , $o->getFloorY());
-        $cfg->setNested($yer.".Z" , $o->getFloorZ());
-        $cfg->setNested($yer.".Yaw" , $o->yaw);
-        $cfg->setNested($yer.".Pitch" , $o->pitch);
-        $cfg->setNested($yer.".Dunya" , $o->getLevel()->getFolderName());
-        $cfg->save();
-        $this->komutGuncelle();
-        return true;
-    }
+        /**
+         * @param stdring $yer
+         * @param Player $o
+         *
+         * @return bool
+         */
+        public function ktpEkle($yer, Player $o){
+            $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
+            $yerler = $cfg->get("yerler");
+            if(!in_array($yer, $yerler)) $yerler[] = $yer;
+            $cfg->set("yerler", $yerler);
+            $cfg->setNested($yer.".X" , $o->getFloorX());
+            $cfg->setNested($yer.".Y" , $o->getFloorY());
+            $cfg->setNested($yer.".Z" , $o->getFloorZ());
+            $cfg->setNested($yer.".Yaw" , $o->yaw);
+            $cfg->setNested($yer.".Pitch" , $o->pitch);
+            $cfg->setNested($yer.".Dunya" , $o->getLevel()->getFolderName());
+            $cfg->save();
+            $this->komutGuncelle();
+            return true;
+        }
 
-    /**
-     * @param string $yer
-     *
-     * @return bool
-     */
-    public function ktpKaldir($yer){
-        $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
-        $yerler = $cfg->get("yerler");
-        $deger = self::YER_BULUNAMADI;
-        if(in_array($yer, $yerler)){
-            unset($yerler[array_search($yer, $yerler)]);
-            $deger = true;
-        }
-        if($cfg->exists($yer)){
-            $cfg->remove($yer);
-            $deger = true;
-        }
-        if($deger == self::YER_BULUNAMADI){
+        /**
+         * @param string $yer
+         *
+         * @return bool
+         */
+        public function ktpKaldir($yer){
+            $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
+            $yerler = $cfg->get("yerler");
+            $deger = self::YER_BULUNAMADI;
+            if(in_array($yer, $yerler)){
+                unset($yerler[array_search($yer, $yerler)]);
+                $deger = true;
+            }
+            if($cfg->exists($yer)){
+                $cfg->remove($yer);
+                $deger = true;
+            }
+            if($deger == self::YER_BULUNAMADI){
+                return $deger;
+            }
+            $cfg->set("yerler", $yerler);
+            $cfg->save();
+            $this->komutGuncelle();
             return $deger;
         }
-        $cfg->set("yerler", $yerler);
-        $cfg->save();
-        $this->komutGuncelle();
-        return $deger;
-    }
 
-    /**
-     * @param Player $o
-     * @param string $yer
-     *
-     * @return bool
-     */
-    public function yerIsinla(Player $o, $yer){
-        $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
-        $yerler = $cfg->get("yerler");
-        if(!in_array($yer, $yerler) or !$cfg->exists($yer)){
-            return self::YER_BULUNAMADI;
-        }
-        $level = $cfg->getNested($yer.".Dunya");
-        if($this->getServer()->isLevelGenerated($level)){
-            $level = $this->getServer()->getLevelByName($level);
-            if(!$level instanceof Level){
-                $this->getServer()->loadLevel($cfg->getNested($yer.".Dunya"));
+        /**
+         * @param Player $o
+         * @param string $yer
+         *
+         * @return bool
+         */
+        public function yerIsinla(Player $o, $yer){
+            $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
+            $yerler = $cfg->get("yerler");
+            if(!in_array($yer, $yerler) or !$cfg->exists($yer)){
+                return self::YER_BULUNAMADI;
+            }
+            $level = $cfg->getNested($yer.".Dunya");
+            if($this->getServer()->isLevelGenerated($level)){
                 $level = $this->getServer()->getLevelByName($level);
+                if(!$level instanceof Level){
+                    $this->getServer()->loadLevel($cfg->getNested($yer.".Dunya"));
+                    $level = $this->getServer()->getLevelByName($level);
+                }
+            }else{
+                return self::DUNYA_SILINDI;
             }
-        }else{
-            return self::DUNYA_SILINDI;
+            $o->teleport(new Position($cfg->getNested($yer.".X"), $cfg->getNested($yer.".Y"), $cfg->getNested($yer.".Z"), $level), $cfg->getNested($yer."Yaw"), $cfg->getNested($yer."Pitch"));
+            return true;
         }
-        $o->teleport(new Position($cfg->getNested($yer.".X"), $cfg->getNested($yer.".Y"), $cfg->getNested($yer.".Z"), $level), $cfg->getNested($yer."Yaw"), $cfg->getNested($yer."Pitch"));
-        return true;
-    }
 
-    /**
-     * @return KisayolTP
-     */
-    public static function getAPI() : KisayolTP{
-        return self::$api;
-    }
-
-    /**
-     * @param string $yer
-     *
-     * @return bool
-     */
-    public function yerVarmi($yer){
-        $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
-        $yerler = $cfg->get("yerler");
-        if(!in_array($yer, $yerler) or !$cfg->exists($yer)){
-            return false;
+        /**
+         * @return KisayolTP
+         */
+        public static function getAPI() : KisayolTP{
+            return self::$api;
         }
-        return true;
-    }
 
-    /**
-     * @return void
-     */
-    public function komutGuncelle(){
-        $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
-        $cfg->reload();
-        $yerler = $cfg->get("yerler");
-        foreach ($yerler as $yer){
-            if(!$cfg->exists($yer) or $this->getServer()->getCommandMap()->getCommand($yer) != null){
-                return;
+        /**
+         * @param string $yer
+         *
+         * @return bool
+         */
+        public function yerVarmi($yer){
+            $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
+            $yerler = $cfg->get("yerler");
+            if(!in_array($yer, $yerler) or !$cfg->exists($yer)){
+                return false;
             }
-            $kmt = new PluginCommand($yer, $this);
-            $kmt->setDescription($yer." alanına ışınlar");
-            $kmt->setExecutor($this);
-            $this->getServer()->getCommandMap()->register($yer, $kmt);
+            return true;
         }
-        if($cfg->get("kullan-AvailableCommandsPacket") != "false"){
-            foreach ($this->getServer()->getOnlinePlayers() as $o){
-                $o->sendCommandData();
+
+        /**
+         * @return void
+         */
+        public function komutGuncelle(){
+            $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
+            $cfg->reload();
+            $yerler = $cfg->get("yerler");
+            foreach ($yerler as $yer){
+                if(!$cfg->exists($yer) or $this->getServer()->getCommandMap()->getCommand($yer) != null){
+                    return false;
+                }
+                $kmt = new PluginCommand($yer, $this);
+                $kmt->setDescription($yer." alanına ışınlar");
+                $kmt->setExecutor($this);
+                $this->getServer()->getCommandMap()->register($yer, $kmt);
+            }
+            if($cfg->get("kullan-AvailableCommandsPacket") != "false"){
+                foreach ($this->getServer()->getOnlinePlayers() as $o){
+                    $o->sendCommandData();
+                }
             }
         }
     }
-}
+    
