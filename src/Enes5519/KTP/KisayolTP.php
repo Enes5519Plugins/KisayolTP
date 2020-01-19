@@ -59,76 +59,78 @@ class KisayolTP extends PluginBase{
      *
      * @return bool|void
      */
-    public function onCommand(CommandSender $g, Command $kmt, $label, array $args){
-        if(!$g instanceof Player) return;
-        if($kmt->getName() == "ktp"){
-            if(empty($args[0])){
-                $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
-                $yerler = $cfg->get("yerler");
-                if(count($yerler) > 0) {
-                    $liste = "";
-                    foreach ($yerler as $yer) {
-                        $liste .= "\n§8§l> §r§a$yer ";
+    public function onCommand(CommandSender $g, Command $kmt, string $label, array $args): bool
+    {
+        if ($g instanceof Player) {
+            if ($kmt->getName() == "ktp") {
+                if (empty($args[0])) {
+                    $cfg = new Config($this->getDataFolder() . "config.yml", Config::YAML);
+                    $yerler = $cfg->get("yerler");
+                    if (count($yerler) > 0) {
+                        $liste = "";
+                        foreach ($yerler as $yer) {
+                            $liste .= "\n§8§l> §r§a$yer ";
+                        }
+                        $g->sendMessage("§7==== §2Yer Listesi §7====$liste");
+                    } else {
+                        $g->sendMessage($this->b . "§cŞuan da ayarlanmış yer bulunmamaktadır!");
                     }
-                    $g->sendMessage("§7==== §2Yer Listesi §7====$liste");
-                }else{
-                    $g->sendMessage($this->b."§cŞuan da ayarlanmış yer bulunmamaktadır!");
+                    if ($g->isOp()) $g->sendMessage(PHP_EOL . $this->b . "§eDiğer komutlar için: /ktp yardim");
+                    return false;
+                } else {
+                    if (!$g->isOp()) {
+                        return false;
+                    }
                 }
-                if ($g->isOp()) $g->sendMessage(PHP_EOL.$this->b."§eDiğer komutlar için: /ktp yardim");
-                return;
-            }else{
-                if(!$g->isOp()){
-                    return;
+                switch ($args[0]) {
+                    case "yardim":
+                        $g->sendMessage("§8=== §eKısayolTP §8===\n§8» §6/ktp ekle <yer-isim> §eYer ekler\n§8» §6/ktp kaldir <yer-isim> §eYer kaldırır");
+                        break;
+                    case "ekle":
+                        if (empty($args[1])) {
+                            $g->sendMessage($this->b . "§c/ktp ekle <yer-isim>");
+                            return false;
+                        }
+                        if ($this->ktpEkle($args[1], $g)) {
+                            $g->sendMessage($this->b . "§a" . $args[1] . " isimli yer eklendi!");
+                        }
+                        break;
+                    case "kaldir":
+                        if (empty($args[1])) {
+                            $g->sendMessage($this->b . "§c/ktp kaldir <yer-isim>");
+                            return false;
+                        }
+                        $kaldir = $this->ktpKaldir($args[1]);
+                        switch ($kaldir) {
+                            case self::YER_BULUNAMADI:
+                                $g->sendMessage($this->b . "§c" . $args[1] . " isimli yer yok!");
+                                break;
+                            case true:
+                                $g->sendMessage($this->b . "§c" . $args[1] . " isimli yer kaldırıldı!");
+                                break;
+                        }
+                        break;
+                    default:
+                        $g->sendMessage($this->b . "§cYanlış bir komut girildi: /ktp yardim");
+                        break;
                 }
-            }
-            switch ($args[0]){
-                case "yardim":
-                    $g->sendMessage("§8=== §eKısayolTP §8===\n§8» §6/ktp ekle <yer-isim> §eYer ekler\n§8» §6/ktp kaldir <yer-isim> §eYer kaldırır");
-                    break;
-                case "ekle":
-                    if(empty($args[1])){
-                        $g->sendMessage($this->b."§c/ktp ekle <yer-isim>");
-                        return;
-                    }
-                    if($this->ktpEkle($args[1], $g)) {
-                        $g->sendMessage($this->b."§a".$args[1]." isimli yer eklendi!");
-                    }
-                    break;
-                case "kaldir":
-                    if(empty($args[1])){
-                        $g->sendMessage($this->b."§c/ktp kaldir <yer-isim>");
-                        return;
-                    }
-                    $kaldir = $this->ktpKaldir($args[1]);
-                    switch ($kaldir){
-                        case self::YER_BULUNAMADI:
-                            $g->sendMessage($this->b."§c".$args[1]." isimli yer yok!");
-                            break;
-                        case true:
-                            $g->sendMessage($this->b."§c".$args[1]." isimli yer kaldırıldı!");
-                            break;
-                    }
-                    break;
-                default:
-                    $g->sendMessage($this->b."§cYanlış bir komut girildi: /ktp yardim");
-                    break;
-            }
-        }else{
-            $komut = $kmt->getName();
-            $isinla = $this->yerIsinla($g, $komut);
-            switch ($isinla){
-                case true:
-                    $g->sendMessage($this->b."§a$komut yerine ışınlandınız.");
-                    break;
-                case self::DUNYA_SILINDI:
-                    $g->sendMessage($this->b."§c$komut yerinin dünyası silinmiş.");
-                    break;
-                case self::YER_BULUNAMADI:
-                    $g->sendMessage($this->b."§cYer silinmiş ya da kaldırılmış.");
-                    break;
-                default:
-                    $g->sendMessage($this->b."§cBir hata oluştu!");
-                    break;
+            } else {
+                $komut = $kmt->getName();
+                $isinla = $this->yerIsinla($g, $komut);
+                switch ($isinla) {
+                    case true:
+                        $g->sendMessage($this->b . "§a$komut yerine ışınlandınız.");
+                        break;
+                    case self::DUNYA_SILINDI:
+                        $g->sendMessage($this->b . "§c$komut yerinin dünyası silinmiş.");
+                        break;
+                    case self::YER_BULUNAMADI:
+                        $g->sendMessage($this->b . "§cYer silinmiş ya da kaldırılmış.");
+                        break;
+                    default:
+                        $g->sendMessage($this->b . "§cBir hata oluştu!");
+                        break;
+                }
             }
         }
     }
