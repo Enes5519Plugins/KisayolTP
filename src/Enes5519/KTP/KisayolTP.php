@@ -59,9 +59,12 @@ class KisayolTP extends PluginBase{
      *
      * @return bool|void
      */
-    public function onCommand(CommandSender $g, Command $kmt, $label, array $args){
-        if(!$g instanceof Player) return;
-        if($kmt->getName() == "ktp"){
+    public function onCommand(CommandSender $g, Command $kmt, string $label, array $args): bool{
+        		if($command->getName() === "ktp"){
+			if(!$sender instanceof Player){
+				$sender->sendMessage("Oyun İçinde Kullanın");
+				return false;
+			}
             if(empty($args[0])){
                 $cfg = new Config($this->getDataFolder()."config.yml", Config::YAML);
                 $yerler = $cfg->get("yerler");
@@ -131,7 +134,6 @@ class KisayolTP extends PluginBase{
                     break;
             }
         }
-    }
 
     /**
      * @param string $yer
