@@ -59,7 +59,7 @@ class KisayolTP extends PluginBase{
      *
      * @return bool|void
      */
-    public function onCommand(CommandSender $g, Command $kmt, $label, array $args){
+    public function onCommand(CommandSender $g, Command $kmt, $label, array $args): bool{
         if(!$g instanceof Player) return;
         if($kmt->getName() == "ktp"){
             if(empty($args[0])){
