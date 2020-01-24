@@ -25,8 +25,8 @@ $provider->getAllWarps();
 [Click](https://github.com/Enes5519/KisayolTP/tree/master/src/Enes5519/KisayolTP/provider) for more information
 
 ## TODO
-[ ] Multi-Language
-[ ] Edit mode
+- [ ] Multi-Language
+- [ ] Edit mode
 
 ## POGGIT
 [![Poggit-CI](https://poggit.pmmp.io/ci.badge/Enes5519/KisayolTP/KisayolTP)](https://poggit.pmmp.io/ci/Enes5519/KisayolTP/KisayolTP) <br />
