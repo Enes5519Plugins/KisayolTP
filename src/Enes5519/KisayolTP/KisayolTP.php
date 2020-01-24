@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Enes5519\KisayolTP;
 
 use Enes5519\KisayolTP\command\MainCommand;

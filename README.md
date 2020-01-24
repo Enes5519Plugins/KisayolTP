@@ -1,4 +1,5 @@
-# KısayolTP
+# KısayolTP 
+#### _RECODED_
 Aren't you tired of long-written warp commands? Then this plugin is for you
 
 | Feature | KisayolTP | Other Warp Plugins |
